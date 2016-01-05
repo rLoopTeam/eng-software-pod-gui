@@ -8,10 +8,12 @@ Note: This is intended to work along side the wifi node. Without it, it will not
 ##requirements
 Python 2.7 (Should work fine with other versions but just in case, I'm putting this here)
 pip
+virtualenv
 
 ## Installation
 1. Pull repo
-2. run pip install -r requirements.txt
+2. Run virtualenv env (note: keep the name 'env' for your environment as this is needed for the provided batch files)
+3. Run env\Scripts\pip.exe install -r requirements.txt
 
 ##Instructions
 1. Make sure the wifi node is up and running and you know the ip address and port
