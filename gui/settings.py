@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'guiApp',
+    'corsheaders',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -49,6 +50,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'gui.urls'
@@ -125,4 +127,15 @@ STATIC_URL = '/static/'
 
 # rLoop pod IP
 # include the port
-POD_REST_IP = '127.0.0.1:5000' 
+POD_REST_IP_PORT = 5000
+POD_REST_IP = '127.0.0.1:%s'%POD_REST_IP_PORT 
+
+# cross origin stuff
+CORS_ORIGIN_WHITELIST = (
+    POD_REST_IP,
+)
+
+CORS_ALLOW_METHODS = (
+    'GET',
+)
+CORS_ORIGIN_ALLOW_ALL = True

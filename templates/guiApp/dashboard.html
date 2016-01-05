@@ -1,48 +1,110 @@
 {% extends "guiApp/layout.html" %}
 
 {% block content %}
-<h1>Commands</h1>
-{% if commands %}
-	{% for command in commands %}
-    	<div class="panel panel-success">
-			<div class="panel-heading">
-				<h3 class="panel-title"><b> 
-					{{command.id}}.	{{command.name}}({% if command.arguments %}{% for argument in command.arguments %} {{argument}} {% endfor %}{% endif %})</b></h3>
-			</div>
-			<div class="panel-body">
-				<p>{{command.description}}</p>
-		    	
-				<!-- arguments -->
-				{% if command.arguments %}
+<div class="row">
+	<h1>Dashboard</h1>
 
-					{% for argument in command.arguments %}
-						{{argument}}
-					{% endfor %}			
+	<div class="col-md-6">
+		Place holder for visualisation
+	</div>
+	<div class="col-md-6">
 
-				{% else %}
-					<div class="alert alert-info" role="alert"><b>No arguments</b></div>
-				{% endif %}	
-
-				<!-- return values -->
-				{% if command.return_values %}
-
-						<div class="panel panel-success">
-							<div class="panel-heading"><b>Return values</b></div>
-							<div class="panel-body">
-							{% for return_value in command.return_values %}
-								<p>{{return_value}}</p>
-							{% endfor %}
-							</div>
-						</div>
-										
-
-				{% else %}
-				    <div class="alert alert-info" role="alert"><b>No return values</b></div>
-				{% endif %}	
+		<div class="progress">
+			<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="60"
+			aria-valuemin="0" aria-valuemax="100" style="width:60%">
+			Temperature
 			</div>
 		</div>
-    {% endfor %}
-{% else %}
-    No commands
-{% endif %}
+		<div class="progress">
+			<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40"
+			aria-valuemin="0" aria-valuemax="100" style="width:40%">
+			Pressure
+			</div>
+		</div>
+		<p><b>Speed: 200m/s</b></p>
+		<p><b>Position(x, y, z): 1002.6, 2556.1, 12.5</b></p>
+		<p><b>Position(distance from start): 500.6m </b></p>
+	</div>
+</div>
+<div class="row">
+	<div class="well">
+		<legend>Controls</legend>
+		<div class="section">
+			<div class="row">
+				<div class="col-md-6">
+					<button type="button" data-command="{{commands.1.name}}" class="btn btn-success btn-block ">{{commands.1.name}}</button>
+				</div>
+				<div class="col-md-6">
+					<button type="button" data-command="{{commands.0.name}}" class="btn btn-danger btn-block progress-bar-danger progress-bar-striped">{{commands.0.name}}</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="input-group input-group-lg">
+						<span class="input-group-addon" id="sizing-addon1">{{commands.2.name}}</span>
+						<input type="text" class="form-control" placeholder="{{commands.2.arguments.0}}" aria-describedby="sizing-addon1">
+						<span class="input-group-btn">
+					        <button class="btn btn-default" data-command="{{command.name}}" type="button">Send</button>
+					    </span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="well">
+		<legend>Info</legend>
+		{% for command in commands %}
+			{% if "start" != command.name and "stop" != command.name and "move" != command.name %}
+			<div class="row">
+				<div class="col-md-6">
+					<div class="input-group input-group-lg">
+						<span class="input-group-addon" id="sizing-addon1">{{command.name}}</span>
+						{% for argument in command.arguments %}
+							<input type="text" class="form-control" placeholder="{{argument}}" aria-describedby="sizing-addon1">
+						{% endfor %}
+						<span class="input-group-btn">
+					        <button class="btn btn-default" data-command="{{command.name}}" type="button">Send</button>
+					    </span>
+					</div>
+				</div>
+			</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+</div>
+
+<script type="text/javascript">
+	$("button").on("click", function(){
+        $.ajax({
+            type: "POST",
+            url: 'http://{{pod_address}}/' + $(this).data('command'),
+            error: function (request, error) {
+                console.log(error);
+            },
+            data: {},
+            crossDomain: true,
+    		dataType: 'jsonp',
+            success: successFunc,
+            failure: failureFunc,
+            dataType: 'html',
+            beforeSend: setHeader
+        });
+    });
+
+	// Use this function to do stuff if milestone update is successful
+    function successFunc(data, textStatus, jqXHR) {
+        console.log(data)
+    }
+    // Use this function to do stuff if not successful. For example show validation messages?
+    function failureFunc(data, textStatus, jqXHR) {
+        console.log(data)
+    }
+	function setHeader(xhr) {
+		xhr.setRequestHeader('Authorization',  'test');
+	}
+
+</script>
+
 {% endblock %}

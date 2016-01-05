@@ -18,5 +18,9 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^dashboard$', 'guiApp.views.dashboard', name='dashboard')
+
+    # Pages
+    url(r'^$', 'guiApp.views.dashboard', name='home'),
+    url(r'^dashboard$', 'guiApp.views.dashboard', name='dashboard'),
+    url(r'^commands$', 'guiApp.views.commands', name='commands')
 ]

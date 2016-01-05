@@ -34,6 +34,22 @@ def dashboard(request):
         'guiApp/dashboard.html',
         context_instance = RequestContext(request,
         {
+            'commands':commands,
+            'pod_address': settings.POD_REST_IP
+        })
+    )
+
+def commands(request):
+	commands = None
+	r = requests.get('http://%s/commands' % settings.POD_REST_IP)
+	if r.status_code == 200:
+		commands = r.json()['commands']
+
+	return render(
+        request,
+        'guiApp/commands.html',
+        context_instance = RequestContext(request,
+        {
             'commands':commands
         })
     )
