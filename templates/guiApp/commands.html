@@ -25,17 +25,14 @@
 
 				<!-- return values -->
 				{% if command.return_values %}
-
-						<div class="panel panel-success">
-							<div class="panel-heading"><b>Return values</b></div>
-							<div class="panel-body">
-							{% for return_value in command.return_values %}
-								<p>{{return_value}}</p>
-							{% endfor %}
-							</div>
+					<div class="panel panel-success">
+						<div class="panel-heading"><b>Return values</b></div>
+						<div class="panel-body">
+						{% for return_value in command.return_values %}
+							<p>{{return_value}}</p>
+						{% endfor %}
 						</div>
-										
-
+					</div>
 				{% else %}
 				    <div class="alert alert-info" role="alert"><b>No return values</b></div>
 				{% endif %}	
@@ -43,6 +40,6 @@
 		</div>
     {% endfor %}
 {% else %}
-    No commands
+	<div class="alert alert-danger" role="alert">Could not connect to wifi node</div>
 {% endif %}
 {% endblock %}

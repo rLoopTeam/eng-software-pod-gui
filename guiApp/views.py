@@ -8,9 +8,13 @@ settings.POD_REST_IP
 
 def dashboard(request):
 	commands = None
-	r = requests.get('http://%s/commands' % settings.POD_REST_IP)
-	if r.status_code == 200:
-		commands = r.json()['commands']
+
+	try:
+		r = requests.post('http://%s/commands' % settings.POD_REST_IP, timeout=settings.POD_REST_TIMEOUT)
+		if r.status_code == 200:
+			commands = r.json()['commands']
+	except:
+		print("Request failed")
 
 	# r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 	
@@ -41,9 +45,12 @@ def dashboard(request):
 
 def commands(request):
 	commands = None
-	r = requests.get('http://%s/commands' % settings.POD_REST_IP)
-	if r.status_code == 200:
-		commands = r.json()['commands']
+	try:
+		r = requests.get('http://%s/commands' % settings.POD_REST_IP)
+		if r.status_code == 200:
+			commands = r.json()['commands']
+	except:
+		print("Request failed")
 
 	return render(
         request,

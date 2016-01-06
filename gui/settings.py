@@ -128,7 +128,8 @@ STATIC_URL = '/static/'
 # rLoop pod IP
 # include the port
 POD_REST_IP_PORT = 5000
-POD_REST_IP = '127.0.0.1:%s'%POD_REST_IP_PORT 
+POD_REST_IP = '192.168.72.130:%s'%POD_REST_IP_PORT 
+POD_REST_TIMEOUT = 3 #seconds
 
 # cross origin stuff
 CORS_ORIGIN_WHITELIST = (
@@ -136,6 +137,6 @@ CORS_ORIGIN_WHITELIST = (
 )
 
 CORS_ALLOW_METHODS = (
-    'GET',
+    'POST',
 )
 CORS_ORIGIN_ALLOW_ALL = True
