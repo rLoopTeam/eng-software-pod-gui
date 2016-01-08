@@ -2,54 +2,63 @@
 
 {% block content %}
 
-	<h1>Dashboard</h1>
-	{% if commands %}
+<h1>Dashboard</h1>
+{% if commands %}
 	<div class="row">
 		<div class="well">
 			<div class="row">
-				<div class="col-md-6 text-center">
-					<div class="alert alert-danger" role="alert">
-						<b>No data feed detected</b>
+				<div class="col-md-6">
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<div class="alert alert-danger" role="alert">
+								<b>No visualisation detected</b>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="col-md-6">
-					<h4>Tube stats</h4>
+					<legend>Tube pressure/temperature</legend>
+					<canvas id="tube-data-graph" width="550" height="200"></canvas>
 					<div class="progress">
 						<div class="progress-bar progress-bar-warning output_tube_temperature" role="progressbar" aria-valuenow="60"
-						aria-valuemin="0" aria-valuemax="100" style="width:50%">
+						aria-valuemin="0" aria-valuemax="100" style="width:100%">
 						
 						</div>
-						Tube temperature (<span class="label_output output_tube_temperature">15</span> C)
+						Tube temperature (<span class="label_output output_tube_temperature">0</span> C)
 					</div>
 
 					<div class="progress">
 						<div class="progress-bar progress-bar-info output_tube_pressure" role="progressbar" aria-valuenow="40"
-						aria-valuemin="0" aria-valuemax="100" style="width:5%">
+						aria-valuemin="0" aria-valuemax="100" style="width:100%">
 						
 						</div>
-						Tube pressure (<span class="label_output output_tube_pressure">100</span> Pa)
+						Tube pressure (<span class="label_output output_tube_pressure">0</span> Pa)
 					</div>
 
-					<h4>Pod stats</h4>
+					<legend>Pod Pressure/temperature</legend>
+					<canvas id="pod-data-graph" width="550" height="200"></canvas>
 					<div class="progress">
 						<div class="progress-bar progress-bar-warning output_pod_temperature" role="progressbar" aria-valuenow="60"
-						aria-valuemin="0" aria-valuemax="100" style="width:60%" >
+						aria-valuemin="0" aria-valuemax="100" style="width:100%" >
 						
 						</div>
-						Pod temperature (<span class="label_output output_pod_temperature">20</span> C)
+						Pod temperature (<span class="label_output output_pod_temperature">0</span> C)
 					</div>
 
 					<div class="progress">
 						<div class="progress-bar progress-bar-info output_pod_pressure" role="progressbar" aria-valuenow="40"
-						aria-valuemin="0" aria-valuemax="100" style="width:40%">
+						aria-valuemin="0" aria-valuemax="100" style="width:100%">
 						
 						</div>
-						Pod pressure (<span class="label_output output_pod_pressure">800</span> Pa)
+						Pod pressure (<span class="label_output output_pod_pressure">0</span> Pa)
 					</div>
-					
-					<p><b>Speed:</b> <span class="label_output output_speed">200</span>m/s</p>
-					<p><b>Position(x, y, z):</b> <span class="label_output output_position">1002.6, 2556.1, 12.5</span></p>
-					<p><b>Position(distance from start):</b> <span class="label_output output_distance">500.6</span>m </p>
+					<legend>Pod speed</legend>
+					<canvas id="pod-speed-graph" width="550" height="200"></canvas>
+					<p><b>Speed:</b> <span class="label_output output_speed">0</span>m/s</p>
+					<p><b>Position(x, y, z):</b> <span class="label_output output_position">0, 0, 0</span></p>
+					<p><b>Position(distance from start):</b> <span class="label_output output_distance">0</span>m </p>
+					<p><b>Power level:</b> <span class="label_output output_power_level">0</span> W </p>
+					<p><b>Battery temperature:</b> <span class="label_output output_battery_temperature">0</span> C </p>
 				</div>
 			</div>
 		</div>
@@ -58,18 +67,26 @@
 		<div class="well">
 			<legend>Controls</legend>
 			<div class="row">
-				<div class="col-md-6">
-					<button type="button" data-command="{{commands.1.name}}" class="btn btn-success btn-block ">{{commands.1.name}}</button>
+				<div class="col-md-12 text-center output_is_started info_panel">
+					<div class="alert alert-success" role="alert">
+						<b>Hyperloop pod is active</b>
+					</div>
 				</div>
-				<div class="col-md-6">
-					<button type="button" data-command="{{commands.0.name}}" class="btn btn-danger btn-block progress-bar-danger progress-bar-striped">{{commands.0.name}}</button>
+			</div>
+			<div class="row">
+
+				<div class="col-md-6 col-sm-6 col-xs-6">
+					<button type="button" data-command="{{commands.1.name}}" class="btn btn-success btn-block progress-bar-success ">{{commands.1.title}}</button>
+				</div>
+				<div class="col-md-6 col-sm-6 col-xs-6">
+					<button type="button" data-command="{{commands.0.name}}" class="btn btn-danger btn-block progress-bar-danger progress-bar-striped">{{commands.0.title}}</button>
 				</div>
 			</div>
 			<br>
 			<div class="row">
 				<div class="col-md-6">
 					<div class="input-group input-group-lg">
-						<span class="input-group-addon" id="sizing-addon1">{{commands.2.name}}</span>
+						<span class="input-group-addon" id="sizing-addon1">{{commands.2.title}}</span>
 						<input type="text" class="form-control" placeholder="{{commands.2.arguments.0}}" aria-describedby="sizing-addon1">
 						<span class="input-group-btn">
 					        <button class="btn btn-default" data-command="{{commands.2.name}}" type="button">Send</button>
@@ -83,11 +100,11 @@
 		<div class="well">
 			<legend>Commands</legend>
 			{% for command in commands %}
-				{% if "start" != command.name and "stop" != command.name and "move" != command.name %}
+				{% if "turn_on" != command.name and "turn_off" != command.name and "move" != command.name %}
 				<div class="row">
 					<div class="col-md-6">
 						<div class="input-group input-group-lg">
-							<span class="input-group-addon" id="sizing-addon1">{{command.name}}</span>
+							<span class="input-group-addon" id="sizing-addon1">{{command.title}}</span>
 							{% for argument in command.arguments %}
 								<input type="text" class="form-control" placeholder="{{argument}}" aria-describedby="sizing-addon1">
 							{% endfor %}
@@ -116,13 +133,190 @@
 	//---------------------------------------//
 	// Outputs
 	//---------------------------------------//
+	$( document ).ready(function() {
+
+		//---------------------------------------//
+		// Charts
+		//---------------------------------------//
+		var jsondata = null
+		var info_no_feed = $(".info-no-feed")
+		
+		var tube_pressure = new TimeSeries();
+		var tube_temperature = new TimeSeries();
+		var pod_pressure = new TimeSeries();
+		var pod_temperature = new TimeSeries();
+		var pod_speed = new TimeSeries();
+
+		var tube_chart = new SmoothieChart({
+										millisPerPixel:40,
+										interpolation:'bezier', //can also use linear
+										scaleSmoothing:1,
+										maxValueScale:1.5,
+										grid:{
+											millisPerLine:1500,
+											verticalSections:10
+										},
+										labels:{
+											fillStyle:'#bcc1fe',
+											fontSize:12
+										},
+										timestampFormatter:SmoothieChart.timeFormatter,
+										horizontalLines:[{	
+												color:'#ffffff',
+												lineWidth:1,
+												value:0
+											}]
+										});
+											
+
+		var pod_chart = new SmoothieChart({millisPerPixel:40,
+										interpolation:'bezier', //can also use linear
+										scaleSmoothing:1,
+										maxValueScale:1.5,
+										grid:{
+											millisPerLine:1500,
+											verticalSections:10
+										},
+										labels:{
+											fillStyle:'#bcc1fe',
+											fontSize:12
+										},
+										timestampFormatter:SmoothieChart.timeFormatter,
+										horizontalLines:[{	
+												color:'#ffffff',
+												lineWidth:1,
+												value:0
+											}]
+										});
+
+		var pod_speed_chart = new SmoothieChart({millisPerPixel:40,
+										interpolation:'bezier', //can also use linear
+										scaleSmoothing:1,
+										maxValueScale:1.5,
+										grid:{
+											millisPerLine:1500,
+											verticalSections:10
+										},
+										labels:{
+											fillStyle:'#bcc1fe',
+											fontSize:12
+										},
+										timestampFormatter:SmoothieChart.timeFormatter,
+										horizontalLines:[{	
+												color:'#ffffff',
+												lineWidth:1,
+												value:0
+											}]
+										});
 
 
 
+		tube_chart.streamTo(document.getElementById("tube-data-graph"), 600);
+		pod_chart.streamTo(document.getElementById("pod-data-graph"), 600);
+		pod_speed_chart.streamTo(document.getElementById("pod-speed-graph"), 600);
+
+		// Add to SmoothieChart
+		// Tube stuff
+		tube_chart.addTimeSeries(tube_pressure, {
+											lineWidth:3,
+											strokeStyle:'rgba(166,168,255,0.6)',
+											fillStyle:'rgba(221,218,254,0.1)'
+										});
+		tube_chart.addTimeSeries(tube_temperature, {
+											lineWidth:3,
+											strokeStyle:'rgba(251,255,166,0.6)',
+											fillStyle:'rgba(253,255,217,0.1)'
+										});
+		// Pod stuff
+		pod_chart.addTimeSeries(pod_pressure, {
+											lineWidth:3,
+											strokeStyle:'rgba(166,168,255,0.6)',
+											fillStyle:'rgba(221,218,254,0.1)'
+										});
+		pod_chart.addTimeSeries(pod_temperature, {
+											lineWidth:3,
+											strokeStyle:'rgba(251,255,166,0.6)',
+											fillStyle:'rgba(253,255,217,0.1)'
+										});
+
+		pod_speed_chart.addTimeSeries(pod_speed, {
+											lineWidth:3,
+											strokeStyle:'rgba(251,255,166,0.6)',
+											fillStyle:'rgba(253,255,217,0.1)'
+										});
+
+
+		//---------------------------------------//
+		// Data retrieval and display
+		//---------------------------------------//
+		// output data function - RUNS ON INITIALISATION ONLY
+		// use this function to format the raw data from the API according to your needs.
+		// for example you can combine two bits of data and output them to an output on the GUI, convert to different units etc.
+  		var output_data_logic = function(){
+  			doAjax(function (data) {
+	  				jsondata = {
+							'screen_dashboard': {
+								'output_is_started':data['return_values'].is_started,
+		                    	'output_tube_temperature':data['return_values'].external_temperature,
+		                    	'output_tube_pressure':data['return_values'].external_pressure,
+		                        'output_pod_temperature':data['return_values'].internal_temperature,
+		                        'output_pod_pressure':data['return_values'].internal_pressure,
+		                        'output_speed':data['return_values'].speed,
+		                        'output_position':data['return_values'].position,
+		                        'output_distance':data['return_values'].distance,
+		                        'output_power_level':data['return_values'].power_level,
+								'output_battery_temperature':data['return_values'].battery_temperature
+		                    }
+						};
+	  			}, 'get_status', null)
+  			
+  			if (jsondata) {
+				info_no_feed.hide()
+				tube_pressure.append(new Date().getTime(), jsondata['screen_dashboard']['output_tube_pressure']);
+				tube_temperature.append(new Date().getTime(), jsondata['screen_dashboard']['output_tube_temperature']);
+				pod_pressure.append(new Date().getTime(), jsondata['screen_dashboard']['output_pod_pressure']);
+				pod_temperature.append(new Date().getTime(), jsondata['screen_dashboard']['output_pod_temperature']);
+				pod_speed.append(new Date().getTime(), jsondata['screen_dashboard']['output_speed']);
+
+			} else {
+  				info_no_feed.show()
+			}
+
+  			return jsondata;
+  		}
+
+
+  		// the screen manager is where the magic happens.
+  		// fed the first argument with an object in the form:
+  		// 'screen or page name' : ['field css class', 
+  		//							'field2 css class']
+  		// the screen part allows you to selectively update fields per page for performance reasons.
+  		// note: On the fields themselves,you can use the same css class on multiple outputs 
+  		// of the same type. This is useful for using the same value on different fields.
+  		// make sure to give the output widgets the correct css class for the type e.g. 
+  		// 				label_output for a basic text output
+  		// 				progress-bar for a progress bars
+  		var manager = new ScreenManager({
+		                        'screen_dashboard':[
+		                        	'output_is_started',
+		                        	'output_tube_temperature',
+		                            'output_tube_pressure',
+		                            'output_pod_temperature',
+		                            'output_pod_pressure',
+		                            'output_speed',
+		                            'output_position',
+		                            'output_distance',
+		                            'output_power_level',
+		                            'output_battery_temperature'
+		                        ]
+		                    },
+		                    output_data_logic);
 
 
 
-
+  		// logic
+  		manager.update();
+	});
 
 	//---------------------------------------//
 	// Buttons
@@ -131,35 +325,13 @@
 		var command = $(this).data('command'),
 			$inputs = $(this).parent().parent().find("input[type='text']"),
 			arguments_ = [];
-
 		$inputs.each(function(){
 			arguments_.push( $(this).val() );
 		});
 
-        $.ajax({
-            type: "POST",
-            url: '/' + command,
-            error: function (request, error) {
-                console.log(error);
-            },
-            data: {"args[]":arguments_},
-    		dataType: 'jsonp',
-            success: successFunc,
-            failure: failureFunc,
-            dataType: 'html',
-            timeout: 3000
-        });
+		console.log(command + ", " + arguments_)
+		doAjax(function(){}, command, arguments_);
     });
-
-	// Use this function to do stuff if milestone update is successful
-    function successFunc(data, textStatus, jqXHR) {
-        console.log(data)
-    }
-    // Use this function to do stuff if not successful. For example show validation messages?
-    function failureFunc(data, textStatus, jqXHR) {
-        console.log(data)
-    }
-
 </script>
 
 {% endblock %}

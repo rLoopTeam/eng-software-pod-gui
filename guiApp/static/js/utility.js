@@ -15,3 +15,28 @@ function getCookie(c_name)
     }
     return "";
  }
+
+
+ function doAjax(callback, command, arguments_){
+    $.ajax({
+        type: "POST",
+        url: '/' + command,
+        error: function (request, error) {
+            console.log("AJAX ERROR:error");
+            console.log(request);
+        },
+        data: {"args[]":arguments_},
+        dataType: 'text json',
+        success: callback,
+        failure: failureFunc,
+        timeout: 3000,
+        async: false
+    });
+
+    // Use this function to do stuff if not successful. For example show validation messages?
+    function failureFunc(data, textStatus, jqXHR) {
+        console.log("AJAX FAILURE")
+        console.log(data)
+    }
+
+ }

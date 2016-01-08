@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from guiApp.views import commands2, dashboard2, get_commands, turn_on, turn_off, move, get_status, get_position, get_speed
+
 import unicodedata
 
 import C11Primary_communication_node as comm_node
@@ -22,15 +24,10 @@ import C11Primary_communication_node as comm_node
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
-    # Pages
-    #url(r'^$', 'guiApp.views.dashboard', name='home'),
-    #url(r'^dashboard$', 'guiApp.views.dashboard', name='dashboard'),
-    #url(r'^commands$', 'guiApp.views.commands', name='commands'),
-
     #testpage
-    url(r'^$', 'guiApp.views.commands', name='home'),
-    url(r'^dashboard$', 'guiApp.views.dashboard2', name='dashboard'),
-    url(r'^commands$', 'guiApp.views.commands2', name='commands'),
+    url(r'^$', commands2, name='home'),
+    url(r'^dashboard$', dashboard2, name='dashboard'),
+    url(r'^commands$', commands2, name='commands'),
 
 ]
 
