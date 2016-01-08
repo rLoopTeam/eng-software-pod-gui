@@ -15,12 +15,28 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+import unicodedata
+
+import C11Primary_communication_node as comm_node
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # Pages
-    url(r'^$', 'guiApp.views.dashboard', name='home'),
-    url(r'^dashboard$', 'guiApp.views.dashboard', name='dashboard'),
-    url(r'^commands$', 'guiApp.views.commands', name='commands')
+    #url(r'^$', 'guiApp.views.dashboard', name='home'),
+    #url(r'^dashboard$', 'guiApp.views.dashboard', name='dashboard'),
+    #url(r'^commands$', 'guiApp.views.commands', name='commands'),
+
+    #testpage
+    url(r'^$', 'guiApp.views.commands', name='home'),
+    url(r'^dashboard$', 'guiApp.views.dashboard2', name='dashboard'),
+    url(r'^commands$', 'guiApp.views.commands2', name='commands'),
+
 ]
+
+#API urls automatically generated
+for command in comm_node.commands:
+    print(command)
+    name = unicodedata.normalize('NFKD', command['name']).encode('ascii','ignore')
+    view = 'guiApp.views.%s'%name
+    urlpatterns.append(url(r'^'+name+'$', view, name=command['name']))

@@ -1,0 +1,45 @@
+{% extends "guiApp/layout.html" %}
+
+{% block content %}
+<h1>Commands</h1>
+{% if commands %}
+	{% for command in commands %}
+    	<div class="panel panel-success">
+			<div class="panel-heading">
+				<h3 class="panel-title"><b> 
+					{{command.id}}.	{{command.name}}({% if command.arguments %}{% for argument in command.arguments %} {{argument}} {% endfor %}{% endif %})</b></h3>
+			</div>
+			<div class="panel-body">
+				<p>{{command.description}}</p>
+		    	
+				<!-- arguments -->
+				{% if command.arguments %}
+
+					{% for argument in command.arguments %}
+						{{argument}}
+					{% endfor %}			
+
+				{% else %}
+					<div class="alert alert-info" role="alert"><b>No arguments</b></div>
+				{% endif %}	
+
+				<!-- return values -->
+				{% if command.return_values %}
+					<div class="panel panel-success">
+						<div class="panel-heading"><b>Return values</b></div>
+						<div class="panel-body">
+						{% for return_value in command.return_values %}
+							<p>{{return_value}}</p>
+						{% endfor %}
+						</div>
+					</div>
+				{% else %}
+				    <div class="alert alert-info" role="alert"><b>No return values</b></div>
+				{% endif %}	
+			</div>
+		</div>
+    {% endfor %}
+{% else %}
+	<div class="alert alert-danger" role="alert">Could not connect to wifi node</div>
+{% endif %}
+{% endblock %}
