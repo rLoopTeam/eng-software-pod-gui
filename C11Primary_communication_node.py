@@ -1,166 +1,163 @@
 from __future__ import print_function # In python 2.7
+from autobahn.twisted.websocket import WebSocketServerProtocol,  WebSocketServerFactory
+from twisted.internet import reactor
+from time import strftime
+import datetime
 import random
 import time
 import math
 import json
 import sys
-from IDs import MessageList as ml
+
+#from IDs import MessageList as ml
+
+def get_time():
+	return strftime("%Y-%m-%d %H:%M:%S")
 
 TUBE_STATS = {
-    'external_temperature':'10',
-    'external_pressure':'100'
+	'external_temperature':'10',
+	'external_pressure':'100'
 }
 
 POD_STATS = {
-        'is_started':False,
-        'speed':'0',
-        'power_level':'3002',
-        'battery_temperature':'0',
-        'internal_temperature':'0',
-        'position':'0, 0, 0',
-        'distance':'0',
-        'internal_pressure':'0',
-        'speed':'0'
-    }
-
-commands = [
-    {
-        'id': 1,
-        'name': u'turn_off',
-        'title': u'Turn off',
-        'arguments': [],
-        'return_values': [],
-        'description': 'This command brings the pod to a turn_off.'
-    },
-    {
-        'id': 2,
-        'name': u'turn_on',
-        'title': u'Turn on',
-        'arguments': [],
-        'return_values': [],
-        'description': 'This command initialises the various systems and gets the pod ready to move.'
-    },
-    {
-        'id': 3,
-        'name': u'move',
-        'title': u'Move',
-        'arguments': ['speed'],
-        'return_values': [],
-        'description': 'This command makes the pod move at a specified speed.'
-    },
-    {
-        'id': 4,
-        'name': u'get_status',
-        'title': u'Get status',
-        'arguments': [],
-        'return_values': [  'power_level',
-                            'battery_temperature',
-                            'internal_temperature',
-                            'external_temperature',
-                            'position',
-                            'distance',
-                            'internal_pressure',
-                            'external_pressure',
-                            'speed'],
-        'description': 'This command returns the status of the modules in the pod.'
-    },
-    {
-        'id': 5,
-        'name': u'get_position',
-        'title': u'Get position',
-        'arguments': [],
-        'return_values': ['x','y','z'],
-        'description': 'This command returns the x,y and z coordinates of the pod.'
-    },
-    {
-        'id': 6,
-        'name': u'get_speed',
-        'title': u'Get speed',
-        'arguments': [],
-        'return_values': ['speed'],
-        'description': 'This command returns the speed of the pod'
-    }
-]
+		"time":get_time(),
+		"is_started":False,
+		"speed":"0",
+		"power_level":"3002",
+		"battery_temperature":"0",
+		"internal_temperature":"0",
+		"position":"0, 0, 0",
+		"distance":"0",
+		"internal_pressure":"0",
+		"speed":"0"
+	}
 
 def return_data(a):
-    return "Test %"%a
+	return "Test %"%a
 
-def turn_off():
-    if (POD_STATS['is_started']):
-        POD_STATS['is_started'] = False
-        POD_STATS['speed'] = 0
-        POD_STATS['internal_temperature'] = 0
-        POD_STATS['internal_pressure'] = 0
-        POD_STATS['battery_temperature'] = 0
-        result = {'command': 'turn_off'}
-    else:
-        result = {'message': 'Pod is already stopped'}
+def power_off():
+	if (POD_STATS['is_started']):
+		POD_STATS['is_started'] = False
+		POD_STATS['speed'] = 0
+		POD_STATS['internal_temperature'] = 0
+		POD_STATS['internal_pressure'] = 0
+		POD_STATS['battery_temperature'] = 0
 
-    print(result, file=sys.stderr)
-    return json.dumps(result)
+		result = '{"command": "turn_off"}'
+	else:
+		result = '{"message": "Pod is already stopped"}'
 
-def turn_on():
-    if (POD_STATS['is_started']):
-        result = {'message': 'Pod is already started'}
-    else:
-        POD_STATS['is_started'] = True
-        POD_STATS['internal_temperature'] = 18
-        POD_STATS['internal_pressure'] = 800
-        POD_STATS['battery_temperature'] = 20
-        result = {'command': 'turn_on'}
-    print(result, file=sys.stderr)
-    return json.dumps(result)
+	return result
 
-def move(speed):
-    if (POD_STATS['is_started']):
-        POD_STATS['speed'] = speed;
-        result = {  "command": "move", 'return_values': {'speed':speed}  }
-    else:
-        result = {'message': 'Pod needs to be started first'}
-    print(result, file=sys.stderr)
-    return json.dumps(result), 201
+def power_on():
+	if (POD_STATS['is_started']):
+		print("Pod is started! No need to do anything.")
+		result = '{"message": "Pod is already started","return_values": {}}'
+	else:
+		print("Pod is NOT started, so do it now!")
+		POD_STATS['is_started'] = True
+		POD_STATS['internal_temperature'] = 18
+		POD_STATS['internal_pressure'] = 800
+		POD_STATS['battery_temperature'] = 20
+
+		result = '{"command": "turn_on","return_values": {}}'
+	return result
+
+def stop():
+	POD_STATS['speed'] = 0
+
+	result = '{"command": "stop","return_values": {}}'
+	return result
+
+def set_speed(speed):
+	if (POD_STATS['is_started']):
+		POD_STATS['speed'] = speed;
+		result = '{"command":"set_speed","return_values":{"speed":'+speed+'}}'
+	else:
+		result = '{"message": "Pod needs to be started first"}'
+	return result
 
 def get_status():
-    result = {  'command': 'get_status', 
-                'return_values': {  
-                                    'is_started':           POD_STATS['is_started'],
-                                    'power_level':          int(POD_STATS['power_level']) + random.randint(-5, 5),
-                                    'battery_temperature':  int(POD_STATS['battery_temperature']) + random.randint(-5, 5),
-                                    'internal_temperature': int(POD_STATS['internal_temperature']) + random.randint(-5, 5),
-                                    'external_temperature': int(TUBE_STATS['external_temperature']) + random.randint(-5, 5),
-                                    'position':             POD_STATS['position'],
-                                    'distance':             int(POD_STATS['distance']) + random.randint(-5, 5),
-                                    'internal_pressure':    int(POD_STATS['internal_pressure']) + random.randint(-5, 5),
-                                    'external_pressure':    int(TUBE_STATS['external_pressure']) + random.randint(-5, 5),
-                                    'speed':                int(POD_STATS['speed']) + random.randint(-5, 5)
-                                }
-            }
-    print(result, file=sys.stderr)
-    return json.dumps(result)
+	result = '{ "command": "get_status",' \
+				'"return_values": { ' \
+					'"timestamp":"' + get_time() + '",'			\
+					'"is_started":' + ('true' if POD_STATS["is_started"] is True else 'false') + ','           \
+					'"power_level":' + str(int(POD_STATS["power_level"]) + random.randint(-5, 5)) + ','  \
+					'"battery_temperature":'+ str(int(POD_STATS["battery_temperature"]) + random.randint(-5, 5))+ ',' 		\
+					'"internal_temperature":'+ str(int(POD_STATS["internal_temperature"]) + random.randint(-5, 5)) +','		\
+					'"external_temperature":' + str(int(TUBE_STATS["external_temperature"]) + random.randint(-5, 5)) + ','		\
+					'"position":"' + POD_STATS["position"] + '",' 		\
+					'"distance":' + str(int(POD_STATS["distance"]) + random.randint(-5, 5)) + ','             		\
+					'"internal_pressure":' +  str(int(POD_STATS["internal_pressure"]) + random.randint(-5, 5)) + ','   		\
+					'"external_pressure":' + str(int(TUBE_STATS["external_pressure"]) + random.randint(-5, 5)) + ','		\
+					'"speed":' + str(int(POD_STATS["speed"]) + random.randint(-5, 5)) + '}}'
+	return result
 
-def get_position():
-    result = {'command': 'get_position', 'return_values':'320,439,21'}
-    print(result, file=sys.stderr)
-    return json.dumps(result)
 
-def get_speed():
-    result = {'command': 'get_speed', 'return_values':'132'}
-    print(result, file=sys.stderr)
-    return json.dumps(result)
 
-def get_commands():
-    result = {'commands':commands}
-    print(result, file=sys.stderr)
-    return json.dumps(result)
+def handle_message_text(data):
 
-  
-def main():   
-    #sender = canvas.init_sender()
-    time.sleep(0.5) #sleep to allow for canvas server startup. horrible hack that will go away soon
+		if(data != ""):
+			
+			data = data.split(",")
+			print(type(data))
+			command = data[0]
 
-    #canvas.print_out("Primary communication node started")
-    print("Primary communication node started")
+			if (command == "stats"):
+				print("COMMAND: status")
+				return get_status()
+			elif (command == "power_on"):
+				print("COMMAND: power_on")
+				return power_on()
+			elif (command == "power_off"):
+				print("COMMAND: power_off")
+				return power_off()
+			elif (command == "stop"):
+				print("COMMAND: stop")
+				return stop()
+			elif (command == "set_speed"):
+				print("COMMAND: set_speed")
+				print("DATA: %s"%data[1])
+				return set_speed(data[1])
+			else:
+				print("Command not found: %s"%data[1])
+
+class PodProtocol(WebSocketServerProtocol):
+
+	def onConnect(self, request):
+		print("Client connecting: {}".format(request.peer))
+
+	def onOpen(self):
+		print("WebSocket connection open.")
+
+	def onMessage(self, payload, isBinary):
+		if isBinary:
+			print("Binary message received: {} bytes".format(len(payload)))
+			print("TODO - Handle binary data")
+			#payload = handle_message_bin(payload)
+		else:
+			text = payload.decode('utf8')
+			print("Text message received: {}".format(text))
+			payload = handle_message_text(text)
+
+		## echo back message verbatim
+		print("RAW PAYLOAD SENT BACK TO SENDER:")
+		print(payload)
+		self.sendMessage(("{}" if payload==None else str(payload)), isBinary)
+
+	def onClose(self, wasClean, code, reason):
+		print("WebSocket connection closed: {}".format(reason))
 
 if __name__ == '__main__':
-    main()
-    
+	HOST, PORT = "localhost", 9000
+
+	print("=============================================")
+	print("= Primary comm node server started")
+	print("= Host: %s:%s"%(HOST, PORT))
+	print("=============================================")
+
+	factory = WebSocketServerFactory(u"ws://%s:%s"%(HOST, PORT), debug=False)
+	factory.protocol = PodProtocol
+
+	reactor.listenTCP(9000, factory)
+	reactor.run()
